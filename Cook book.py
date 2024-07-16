@@ -1,25 +1,27 @@
 import pprint
-
-cook_book = {}
-
-with open('recipes.txt', 'r', encoding='UTF-8') as f:
-    while True:
-        dish_name = f.readline().strip()
-        if not dish_name:
-            break
-        count = int(f.readline().strip())
-        ingredients = []
-        for i in range(count):
-            ingredient = f.readline().strip()
-            name, quantity, measure = ingredient.split(' | ')
-            ingredients.append({'ingredient_name': name, 'quantity': int(quantity), 'measure': measure})
-        cook_book[dish_name] = ingredients
-        f.readline()
-
-pprint.pprint(cook_book)
+import os
 
 
-def get_shop_list_by_dishes(dishes, person_count):
+def read_recipes(file_path):
+
+    cook_book = {}
+    with open('recipes.txt', 'r', encoding='UTF-8') as f:
+        while True:
+            dish_name = f.readline().strip()
+            if not dish_name:
+                break
+            count = int(f.readline().strip())
+            ingredients = []
+            for i in range(count):
+                ingredient = f.readline().strip()
+                name, quantity, measure = ingredient.split(' | ')
+                ingredients.append({'ingredient_name': name, 'quantity': int(quantity), 'measure': measure})
+            cook_book[dish_name] = ingredients
+            f.readline()
+    return cook_book
+
+
+def get_shop_list_by_dishes(cook_book, dishes, person_count):
     shopping_list = {}
 
     for dish in dishes:
@@ -39,35 +41,48 @@ def get_shop_list_by_dishes(dishes, person_count):
     return shopping_list
 
 
-dishes = ['Запеченный картофель', 'Омлет']
-person_count = 2
-shop_list = get_shop_list_by_dishes(dishes, person_count)
+def main():
 
-pprint.pprint(shop_list)
+    cook_book = read_recipes('resipes.txt')
+    pprint.pprint(cook_book)
 
-f.close()
+    dishes = ['Запеченный картофель', 'Омлет']
+    person_count = 2
+    shop_list = get_shop_list_by_dishes(cook_book, dishes, person_count)
+
+    pprint.pprint(shop_list)
+
+
+if __name__ == "__main__":
+    main()
+
 
 # Задача № 3
 
-file_names = ['1.txt', '2.txt', '3.txt']
-file_contents = {}
 
-with open('1.txt', encoding='utf') as f1, open('2.txt', encoding='utf') as f2, \
-        open('3.txt', encoding='utf') as f3:
-    files = [f1, f2, f3]
-    for file in files:
-        lines = file.readlines()
-        line_count = len(lines)
+def read_files(file_names):
+    file_contents = {}
+    for file_name in file_names:
+        with open(file_name, 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            line_count = len(lines)
+            file_contents[line_count] = [f"{file_name}\n", f"{line_count}\n"] + lines
+    return file_contents
 
-        file_contents[line_count] = [f"{file.name}\n", f"{line_count}\n"] + lines
 
+def write_sorted_content(file_contents, output_file):
     sorted_file_contents = dict(sorted(file_contents.items()))
-
-    with open('result.txt', 'w', encoding='utf-8') as result_file:
-        for line_count, content in sorted_file_contents.items():
+    with open(output_file, 'w', encoding='utf-8') as result_file:
+        for content in sorted_file_contents.values():
             result_file.writelines(content)
             result_file.write('\n')
 
-f1.close()
-f2.close()
-f3.close()
+
+def main():
+    file_names = [f for f in os.listdir('.') if f.endswith('.txt')]
+    file_contents = read_files(file_names)
+    write_sorted_content(file_contents, 'result.txt')
+
+
+if __name__ == "__main__":
+    main()
